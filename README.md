@@ -1,6 +1,6 @@
 # GameAwards2016
 Japan Game Awards 2016 Amateur  
-[ホームページ][HP]
+[ホームページ][HP]  
 [Wiki][Wiki]
 
 [HP]:http://awards.cesa.or.jp/cat/cat_03.html

@@ -2,6 +2,7 @@
 Japan Game Awards 2016 Amateur  
 [ホームページ][HP]  
 ---
+# ルール
 [コーティングルール][Wiki]
 
 [HP]:http://awards.cesa.or.jp/cat/cat_03.html

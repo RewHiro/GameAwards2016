@@ -105,18 +105,28 @@ public class AudioPlayer : MonoBehaviour
         _audioSource.UnPause();
     }
 
-    public void StartFadeIn()
+    public void StartFadeIn(float fade_time = 1.0f, float max_volume = 1.0f, float current_volume = 0.0f)
     {
-        if (_state != FadeState.WAIT) return;
+        if (_state == FadeState.IN) return;
+
+        if (!_audioSource.isPlaying)
+        {
+            _audioSource.Play();
+        }
+
         _state = FadeState.IN;
-        StartCoroutine(FadeIn());
+        _audioSource.volume = current_volume;
+        StopAllCoroutines();
+        StartCoroutine(FadeIn(fade_time, max_volume));
     }
 
-    public void StartFadeOut()
+    public void StartFadeOut(float fade_time = 1.0f, float min_volume = 0.0f)
     {
-        if (_state != FadeState.WAIT) return;
+        if (_state == FadeState.OUT) return;
+
         _state = FadeState.OUT;
-        StartCoroutine(FadeOut());
+        StopAllCoroutines();
+        StartCoroutine(FadeOut(fade_time, min_volume));
     }
 
     //--------------------------------------------------------------
@@ -138,27 +148,37 @@ public class AudioPlayer : MonoBehaviour
 
     IEnumerator FadeIn(float fade_time = 1.0f, float max_volume = 1.0f)
     {
-        float TIME = fade_time;
+        float time = 0.0f;
+        float min_volume = _audioSource.volume;
 
-        while (_audioSource.volume > 0)
+        while (_audioSource.volume < max_volume)
         {
-            fade_time += -Time.deltaTime;
-            _audioSource.volume = ((TIME - fade_time) / TIME) * max_volume;
+            Fade(ref time, fade_time, min_volume, max_volume);
             yield return null;
         }
+
+        _audioSource.volume = max_volume;
         _state = FadeState.WAIT;
     }
 
-    IEnumerator FadeOut(float fade_time = 1.0f, float min_volume = 1.0f)
+    IEnumerator FadeOut(float fade_time = 1.0f, float min_volume = 0.0f)
     {
-        float TIME = fade_time;
+        float time = 0.0f;
+        float max_volume = _audioSource.volume;
 
-        while (_audioSource.volume < 1)
+        while (_audioSource.volume > min_volume)
         {
-            fade_time += -Time.deltaTime;
-            _audioSource.volume = (fade_time / TIME) * min_volume;
+            Fade(ref time, fade_time, max_volume, min_volume);
             yield return null;
         }
+
+        _audioSource.volume = min_volume;
         _state = FadeState.WAIT;
+    }
+
+    void Fade(ref float time, float fade_time, float begin_volume, float end_volume)
+    {
+        time += Time.deltaTime;
+        _audioSource.volume = Mathf.Lerp(begin_volume, end_volume, time / fade_time);
     }
 }

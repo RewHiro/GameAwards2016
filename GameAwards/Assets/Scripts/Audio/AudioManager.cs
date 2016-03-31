@@ -132,8 +132,6 @@ public class AudioManager : Singleton<AudioManager>
         Create(audioPlayerPrefab, bgms, _bgms, transform.FindChild(BGM_NAME), audioMixerGroup[1], true);
         Create(audioPlayerPrefab, ses, _ses, transform.FindChild(SE_NAME), audioMixerGroup[2]);
         Create(audioPlayerPrefab, voices, _voices, transform.FindChild(VOICE_NAME), audioMixerGroup[3]);
-
-
     }
 
     void Create

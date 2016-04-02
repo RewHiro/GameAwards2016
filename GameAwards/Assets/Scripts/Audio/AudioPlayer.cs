@@ -65,7 +65,7 @@ public class AudioPlayer : MonoBehaviour
     {
         get
         {
-            return _state != FadeState.WAIT;
+            return _fadeState.isFade;
         }
     }
 
@@ -73,7 +73,7 @@ public class AudioPlayer : MonoBehaviour
     {
         get
         {
-            return _state == FadeState.IN;
+            return _fadeState.isFadeIn;
         }
     }
 
@@ -81,7 +81,7 @@ public class AudioPlayer : MonoBehaviour
     {
         get
         {
-            return _state == FadeState.OUT;
+            return _fadeState.isFadeOut;
         }
     }
 
@@ -107,14 +107,14 @@ public class AudioPlayer : MonoBehaviour
 
     public void StartFadeIn(float fade_time = 1.0f, float max_volume = 1.0f, float current_volume = 0.0f)
     {
-        if (_state == FadeState.IN) return;
+        if (_fadeState.isFadeIn) return;
 
         if (!_audioSource.isPlaying)
         {
             _audioSource.Play();
         }
 
-        _state = FadeState.IN;
+        _fadeState.state = FadeState.State.IN;
         _audioSource.volume = current_volume;
         StopAllCoroutines();
         StartCoroutine(FadeIn(fade_time, max_volume));
@@ -122,23 +122,16 @@ public class AudioPlayer : MonoBehaviour
 
     public void StartFadeOut(float fade_time = 1.0f, float min_volume = 0.0f)
     {
-        if (_state == FadeState.OUT) return;
+        if (_fadeState.isFadeOut) return;
 
-        _state = FadeState.OUT;
+        _fadeState.state = FadeState.State.OUT;
         StopAllCoroutines();
         StartCoroutine(FadeOut(fade_time, min_volume));
     }
 
     //--------------------------------------------------------------
 
-    enum FadeState
-    {
-        IN,
-        OUT,
-        WAIT
-    }
-
-    FadeState _state = FadeState.WAIT;
+    FadeState _fadeState = new FadeState();
     AudioSource _audioSource = null;
 
     void Awake()
@@ -158,7 +151,7 @@ public class AudioPlayer : MonoBehaviour
         }
 
         _audioSource.volume = max_volume;
-        _state = FadeState.WAIT;
+        _fadeState.state = FadeState.State.WAIT;
     }
 
     IEnumerator FadeOut(float fade_time = 1.0f, float min_volume = 0.0f)
@@ -173,12 +166,12 @@ public class AudioPlayer : MonoBehaviour
         }
 
         _audioSource.volume = min_volume;
-        _state = FadeState.WAIT;
+        _fadeState.state = FadeState.State.WAIT;
     }
 
-    void Fade(ref float time, float fade_time, float begin_volume, float end_volume)
+    void Fade(ref float time, float fade_time, float begin_value, float end_value)
     {
         time += Time.deltaTime;
-        _audioSource.volume = Mathf.Lerp(begin_volume, end_volume, time / fade_time);
+        _audioSource.volume = Mathf.Lerp(begin_value, end_value, time / fade_time);
     }
 }

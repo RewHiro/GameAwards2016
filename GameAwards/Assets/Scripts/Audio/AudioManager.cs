@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public class AudioManager : Singleton<AudioManager>
@@ -85,34 +86,78 @@ public class AudioManager : Singleton<AudioManager>
         return audioPlayer;
     }
 
-    public void StopBgm()
-    {
-        _bgms.ExecuteAction(audio => audio.Stop());
-    }
-
-    public void StopSe()
-    {
-        _ses.ExecuteAction(audio => audio.Stop());
-    }
-
-    public void StopVoice()
-    {
-        _voices.ExecuteAction(audio => audio.Stop());
-    }
-
-    public void StopAll()
+    public AudioManager StopAll()
     {
         StopBgm();
         StopSe();
         StopVoice();
+        return this;
     }
 
+    public AudioManager StopBgm()
+    {
+        _bgms.ExecuteAction(audio => audio.Stop());
+        return this;
+    }
+
+    public AudioManager StopSe()
+    {
+        _ses.ExecuteAction(audio => audio.Stop());
+        return this;
+    }
+
+    public AudioManager StopVoice()
+    {
+        _voices.ExecuteAction(audio => audio.Stop());
+        return this;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dB">20~-80(0がAudioSourceのVolumeの1に当たる)</param>
+    public AudioManager ChangeMasterVolume(float dB)
+    {
+        _audioMixerGroup[0].audioMixer.SetFloat("MasterVolume", dB);
+        return this;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dB">20~-80(0がAudioSourceのVolumeの1に当たる)</param>
+    public AudioManager ChangeBgmVolume(float dB)
+    {
+        _audioMixerGroup[1].audioMixer.SetFloat("BgmVolume", dB);
+        return this;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dB">20~-80(0がAudioSourceのVolumeの1に当たる)</param>
+    public AudioManager ChangeSeVolume(float dB)
+    {
+        _audioMixerGroup[2].audioMixer.SetFloat("SeVolume", dB);
+        return this;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dB">20~-80(0がAudioSourceのVolumeの1に当たる)</param>
+    public AudioManager ChangeVoiceVolume(float dB)
+    {
+        _audioMixerGroup[3].audioMixer.SetFloat("VoiceVolume", dB);
+        return this;
+    }
 
     //--------------------------------------------------------
 
     List<AudioPlayer> _bgms = new List<AudioPlayer>();
     List<AudioPlayer> _ses = new List<AudioPlayer>();
     List<AudioPlayer> _voices = new List<AudioPlayer>();
+    List<AudioMixerGroup> _audioMixerGroup = new List<AudioMixerGroup>();
 
 
     override protected void Awake()
@@ -128,6 +173,8 @@ public class AudioManager : Singleton<AudioManager>
 
         var audioMixer = Resources.Load<AudioMixer>(PathInfo.pathOfSound + "AudioMixer");
         var audioMixerGroup = audioMixer.FindMatchingGroups(string.Empty);
+
+        _audioMixerGroup.AddRange(audioMixerGroup);
 
         Create(audioPlayerPrefab, bgms, _bgms, transform.FindChild(BGM_NAME), audioMixerGroup[1], true);
         Create(audioPlayerPrefab, ses, _ses, transform.FindChild(SE_NAME), audioMixerGroup[2]);
